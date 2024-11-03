@@ -4,6 +4,6 @@ spring:
     username: ${PGUSER}
     password: ${PGPASSWORD}
   jpa:
-    open-in-view: validate
+    open-in-view: false
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
