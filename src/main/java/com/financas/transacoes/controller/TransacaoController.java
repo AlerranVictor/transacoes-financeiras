@@ -31,6 +31,19 @@ public class TransacaoController {
         List<TransacaoDTO> transacoes = transacaoService.findAll();
         return ResponseEntity.ok(transacoes);
     }
+
+    @GetMapping("/despesas")
+    public ResponseEntity<List<TransacaoDTO>> getDespesas(){
+        List<TransacaoDTO> despesas = transacaoService.findDespesas();
+        return ResponseEntity.ok(despesas);
+    }
+
+    @GetMapping("/receitas")
+    public ResponseEntity<List<TransacaoDTO>> getReceitas(){
+        List<TransacaoDTO> receitas = transacaoService.findReceitas();
+        return ResponseEntity.ok(receitas);
+    }
+
     @PostMapping
     public ResponseEntity<Transacao> create(@RequestBody Transacao transacao){
         Transacao novaTransacao = transacaoService.create(transacao);

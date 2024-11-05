@@ -25,6 +25,30 @@ public class TransacaoServiceImpl implements TransacaoService {
     public Transacao findById(Integer id) {
         return transacaoRepository.findById(id).orElseThrow(NoSuchElementException::new);
     }
+    @Override
+    public List<TransacaoDTO> findDespesas(){
+        return transacaoRepository.findByTipo("DESPESA")
+        .stream()
+        .map( transacao -> new TransacaoDTO(
+            transacao.getId(),
+            transacao.getTipo(),
+            transacao.getCategoria(),
+            transacao.getValor()
+        ))
+        .collect(Collectors.toList());
+    }
+    @Override
+    public List<TransacaoDTO> findReceitas(){
+        return transacaoRepository.findByTipo("RECEITA")
+        .stream()
+        .map( transacao -> new TransacaoDTO(
+            transacao.getId(),
+            transacao.getTipo(),
+            transacao.getCategoria(),
+            transacao.getValor()
+        ))
+        .collect(Collectors.toList());
+    }
 
     @Override
     public List<TransacaoDTO> findAll(){
