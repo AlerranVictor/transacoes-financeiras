@@ -10,6 +10,7 @@ import org.springframework.web.client.ResourceAccessException;
 import com.financas.transacoes.domain.model.Transacao;
 import com.financas.transacoes.domain.repository.TransacaoRepository;
 import com.financas.transacoes.dto.TransacaoDTO;
+import com.financas.transacoes.dto.TransacaoResponseDTO;
 import com.financas.transacoes.service.TransacaoService;
 
 @Service
@@ -51,18 +52,6 @@ public class TransacaoServiceImpl implements TransacaoService {
     }
 
     @Override
-    public List<TransacaoDTO> findAll(){
-        return transacaoRepository.findAll().stream()
-        .map(transacao -> new TransacaoDTO(
-            transacao.getId(), 
-            transacao.getTipo(), 
-            transacao.getCategoria(), 
-            transacao.getValor()
-            ))
-            .collect(Collectors.toList());
-    }
-
-    @Override
     public Transacao create(Transacao transacaoToCreate) {
         return transacaoRepository.save(transacaoToCreate);
     }
@@ -82,6 +71,23 @@ public class TransacaoServiceImpl implements TransacaoService {
             return transacaoRepository.save(transacao);
         })
         .orElseThrow(() -> new ResourceAccessException("Transação não encontrada"));
+    }
+
+    @Override
+    public TransacaoResponseDTO obterTransacoesSeparadas() {
+        List<Transacao> todasTransacoes = transacaoRepository.findAll();
+
+        List<TransacaoDTO> receitas = todasTransacoes.stream()
+        .filter(transacao -> "RECEITA".equals(transacao.getCategoria()))
+        .map(transacao -> new TransacaoDTO(transacao.getId(), transacao.getTipo(), transacao.getCategoria(), transacao.getValor()))
+        .collect(Collectors.toList());
+
+        List<TransacaoDTO> despesas = todasTransacoes.stream()
+        .filter(transacao -> "DESPESA".equals(transacao.getCategoria()))
+        .map(transacao -> new TransacaoDTO(transacao.getId(), transacao.getTipo(), transacao.getCategoria(), transacao.getValor()))
+        .collect(Collectors.toList());
+
+        return new TransacaoResponseDTO(receitas, despesas);
     }
 
 }

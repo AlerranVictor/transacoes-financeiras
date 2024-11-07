@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.financas.transacoes.domain.model.Transacao;
 import com.financas.transacoes.dto.TransacaoDTO;
+import com.financas.transacoes.dto.TransacaoResponseDTO;
 import com.financas.transacoes.service.TransacaoService;
 
 @RestController
@@ -27,9 +28,9 @@ public class TransacaoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TransacaoDTO>> getAll(){
-        List<TransacaoDTO> transacoes = transacaoService.findAll();
-        return ResponseEntity.ok(transacoes);
+    public ResponseEntity<TransacaoResponseDTO> obterTransacoesSeparadas(){
+        TransacaoResponseDTO tSeparadas = transacaoService.obterTransacoesSeparadas();
+        return ResponseEntity.ok(tSeparadas);
     }
 
     @GetMapping("/despesas")
