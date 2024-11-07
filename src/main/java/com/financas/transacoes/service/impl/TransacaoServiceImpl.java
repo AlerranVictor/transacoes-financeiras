@@ -2,10 +2,10 @@ package com.financas.transacoes.service.impl;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.ResourceAccessException;
 
 import com.financas.transacoes.domain.model.Transacao;
 import com.financas.transacoes.domain.repository.TransacaoRepository;
@@ -53,6 +53,7 @@ public class TransacaoServiceImpl implements TransacaoService {
 
     @Override
     public Transacao create(Transacao transacaoToCreate) {
+        transacaoToCreate.setTipo(transacaoToCreate.getTipo().toUpperCase());
         return transacaoRepository.save(transacaoToCreate);
     }
 
@@ -62,15 +63,15 @@ public class TransacaoServiceImpl implements TransacaoService {
     }
 
     @Override
-    public Transacao update(Integer id, Transacao transacaoToUpdate) {
+    public Optional<Transacao> update(Integer id, Transacao transacaoToUpdate) {
         return transacaoRepository.findById(id).map(transacao -> {
-            transacao.setTipo(transacaoToUpdate.getTipo());
+            transacao.setTipo(transacaoToUpdate.getTipo().toUpperCase());
             transacao.setCategoria(transacaoToUpdate.getCategoria());
             transacao.setValor(transacaoToUpdate.getValor());
 
             return transacaoRepository.save(transacao);
-        })
-        .orElseThrow(() -> new ResourceAccessException("Transação não encontrada"));
+        });
+        
     }
 
     @Override
@@ -78,14 +79,16 @@ public class TransacaoServiceImpl implements TransacaoService {
         List<Transacao> todasTransacoes = transacaoRepository.findAll();
 
         List<TransacaoDTO> receitas = todasTransacoes.stream()
-        .filter(transacao -> "RECEITA".equals(transacao.getCategoria()))
-        .map(transacao -> new TransacaoDTO(transacao.getId(), transacao.getTipo(), transacao.getCategoria(), transacao.getValor()))
-        .collect(Collectors.toList());
+                .filter(transacao -> "RECEITA".equals(transacao.getTipo()))
+                .map(transacao -> new TransacaoDTO(transacao.getId(), transacao.getTipo(), transacao.getCategoria(),
+                        transacao.getValor()))
+                .collect(Collectors.toList());
 
         List<TransacaoDTO> despesas = todasTransacoes.stream()
-        .filter(transacao -> "DESPESA".equals(transacao.getCategoria()))
-        .map(transacao -> new TransacaoDTO(transacao.getId(), transacao.getTipo(), transacao.getCategoria(), transacao.getValor()))
-        .collect(Collectors.toList());
+                .filter(transacao -> "DESPESA".equals(transacao.getTipo()))
+                .map(transacao -> new TransacaoDTO(transacao.getId(), transacao.getTipo(), transacao.getCategoria(),
+                        transacao.getValor()))
+                .collect(Collectors.toList());
 
         return new TransacaoResponseDTO(receitas, despesas);
     }

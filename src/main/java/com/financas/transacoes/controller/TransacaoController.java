@@ -1,6 +1,7 @@
 package com.financas.transacoes.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,8 +52,8 @@ public class TransacaoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(novaTransacao);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Transacao> update(@PathVariable Integer id, @RequestBody Transacao transacao){
-        Transacao attTransacao = transacaoService.update(id, transacao);
+    public ResponseEntity<Optional<Transacao>> update(@PathVariable Integer id, @RequestBody Transacao transacao){
+        Optional<Transacao> attTransacao = transacaoService.update(id, transacao);
         return ResponseEntity.ok(attTransacao);
     }
     @DeleteMapping("/{id}")
