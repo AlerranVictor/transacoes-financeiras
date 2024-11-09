@@ -1,5 +1,6 @@
 package com.financas.transacoes.service.impl;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -90,7 +91,11 @@ public class TransacaoServiceImpl implements TransacaoService {
                         transacao.getValor()))
                 .collect(Collectors.toList());
 
-        return new TransacaoResponseDTO(receitas, despesas);
+        BigDecimal total = todasTransacoes.stream()
+        .map(transacao -> transacao.getValor())
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return new TransacaoResponseDTO(receitas, despesas, total);
     }
 
 }
