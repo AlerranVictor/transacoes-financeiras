@@ -15,8 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.financas.transacoes.domain.model.Transacao;
-import com.financas.transacoes.dto.TransacaoDTO;
-import com.financas.transacoes.dto.TransacaoResponseDTO;
+import com.financas.transacoes.domain.model.Transacoes;
 import com.financas.transacoes.service.TransacaoService;
 
 @RestController
@@ -29,20 +28,20 @@ public class TransacaoController {
     }
 
     @GetMapping
-    public ResponseEntity<TransacaoResponseDTO> obterTransacoesSeparadas(){
-        TransacaoResponseDTO tSeparadas = transacaoService.obterTransacoesSeparadas();
+    public ResponseEntity<Transacoes> obterTransacoesSeparadas(){
+        Transacoes tSeparadas = transacaoService.obterTransacoesSeparadas();
         return ResponseEntity.ok(tSeparadas);
     }
 
     @GetMapping("/despesas")
-    public ResponseEntity<List<TransacaoDTO>> getDespesas(){
-        List<TransacaoDTO> despesas = transacaoService.findDespesas();
+    public ResponseEntity<List<Transacao>> getDespesas(){
+        List<Transacao> despesas = transacaoService.findDespesas();
         return ResponseEntity.ok(despesas);
     }
 
     @GetMapping("/receitas")
-    public ResponseEntity<List<TransacaoDTO>> getReceitas(){
-        List<TransacaoDTO> receitas = transacaoService.findReceitas();
+    public ResponseEntity<List<Transacao>> getReceitas(){
+        List<Transacao> receitas = transacaoService.findReceitas();
         return ResponseEntity.ok(receitas);
     }
 

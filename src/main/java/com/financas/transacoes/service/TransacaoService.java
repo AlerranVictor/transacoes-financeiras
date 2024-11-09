@@ -4,15 +4,14 @@ import java.util.List;
 import java.util.Optional;
 
 import com.financas.transacoes.domain.model.Transacao;
-import com.financas.transacoes.dto.TransacaoDTO;
-import com.financas.transacoes.dto.TransacaoResponseDTO;
+import com.financas.transacoes.domain.model.Transacoes;
 
 public interface TransacaoService {
     Transacao findById(Integer id);
-    List<TransacaoDTO> findDespesas();
-    List<TransacaoDTO> findReceitas();
+    List<Transacao> findDespesas();
+    List<Transacao> findReceitas();
     Transacao create(Transacao transacaoToCreate);
     void delete(Integer id);
     Optional<Transacao> update(Integer id, Transacao transacaoToUpdate);
-    TransacaoResponseDTO obterTransacoesSeparadas();
+    Transacoes obterTransacoesSeparadas();
 }
