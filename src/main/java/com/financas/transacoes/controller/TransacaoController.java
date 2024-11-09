@@ -57,7 +57,7 @@ public class TransacaoController {
         return ResponseEntity.ok(attTransacao);
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable Integer id, @RequestBody Transacao transacao){
+    public ResponseEntity<String> delete(@PathVariable Integer id){
         transacaoService.delete(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
     }
