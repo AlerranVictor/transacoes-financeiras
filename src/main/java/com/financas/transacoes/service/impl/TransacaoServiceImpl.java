@@ -55,6 +55,7 @@ public class TransacaoServiceImpl implements TransacaoService {
         return transacaoRepository.findById(id).map(transacao -> {
             transacao.setTipo(transacaoToUpdate.getTipo().toUpperCase());
             transacao.setCategoria(transacaoToUpdate.getCategoria());
+            transacao.setData(transacaoToUpdate.getData());
             transacao.setValor(transacaoToUpdate.getValor());
 
             return transacaoRepository.save(transacao);
