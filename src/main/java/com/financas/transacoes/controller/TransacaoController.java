@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.financas.transacoes.domain.model.Transacao;
-import com.financas.transacoes.domain.model.Transacoes;
+import com.financas.transacoes.dto.TransacaoRequestDTO;
+import com.financas.transacoes.dto.TransacoesResponseDTO;
 import com.financas.transacoes.service.TransacaoService;
 
 @RestController
@@ -28,8 +29,8 @@ public class TransacaoController {
     }
 
     @GetMapping
-    public ResponseEntity<Transacoes> obterTransacoesSeparadas(){
-        Transacoes tSeparadas = transacaoService.obterTransacoesSeparadas();
+    public ResponseEntity<TransacoesResponseDTO> obterTransacoesSeparadas(@RequestBody Integer usuarioId){
+        TransacoesResponseDTO tSeparadas = transacaoService.obterTransacoesSeparadas(usuarioId);
         return ResponseEntity.ok(tSeparadas);
     }
 
@@ -46,7 +47,7 @@ public class TransacaoController {
     }
 
     @PostMapping
-    public ResponseEntity<Transacao> create(@RequestBody Transacao transacao){
+    public ResponseEntity<Transacao> create(@RequestBody TransacaoRequestDTO transacao){
         Transacao novaTransacao = transacaoService.create(transacao);
         return ResponseEntity.status(HttpStatus.CREATED).body(novaTransacao);
     }

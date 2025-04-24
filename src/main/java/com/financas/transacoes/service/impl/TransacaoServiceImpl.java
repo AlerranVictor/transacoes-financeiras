@@ -9,16 +9,22 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.financas.transacoes.domain.model.Transacao;
-import com.financas.transacoes.domain.model.Transacoes;
+import com.financas.transacoes.domain.model.User;
 import com.financas.transacoes.domain.repository.TransacaoRepository;
+import com.financas.transacoes.domain.repository.UserRepository;
+import com.financas.transacoes.dto.TransacaoRequestDTO;
+import com.financas.transacoes.dto.TransacaoResponseDTO;
+import com.financas.transacoes.dto.TransacoesResponseDTO;
 import com.financas.transacoes.service.TransacaoService;
 
 @Service
 public class TransacaoServiceImpl implements TransacaoService {
     private final TransacaoRepository transacaoRepository;
+    private final UserRepository userRepository;
 
-    public TransacaoServiceImpl(TransacaoRepository transacaoRepository) {
+    public TransacaoServiceImpl(TransacaoRepository transacaoRepository, UserRepository userRepository) {
         this.transacaoRepository = transacaoRepository;
+        this.userRepository = userRepository;
     }
 
 
@@ -40,9 +46,16 @@ public class TransacaoServiceImpl implements TransacaoService {
     }
 
     @Override
-    public Transacao create(Transacao transacaoToCreate) {
+    public Transacao create(TransacaoRequestDTO transacaoToCreate) {
+        User usuario = userRepository.findById(transacaoToCreate.getUsuarioId()).orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
         transacaoToCreate.setTipo(transacaoToCreate.getTipo().toUpperCase());
-        return transacaoRepository.save(transacaoToCreate);
+        Transacao transacao = new Transacao();
+        transacao.setTipo(transacaoToCreate.getTipo());
+        transacao.setCategoria(transacaoToCreate.getCategoria());
+        transacao.setData(transacaoToCreate.getData());
+        transacao.setValor(transacaoToCreate.getValor());
+        transacao.setUsuario(usuario);
+        return transacaoRepository.save(transacao);
     }
 
     @Override
@@ -64,22 +77,39 @@ public class TransacaoServiceImpl implements TransacaoService {
     }
 
     @Override
-    public Transacoes obterTransacoesSeparadas() {
-        List<Transacao> todasTransacoes = transacaoRepository.findAll();
+    public TransacoesResponseDTO obterTransacoesSeparadas(Integer usuarioId) {
+        User usuario = userRepository.findById(usuarioId).orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
+        List<Transacao> todasTransacoesPorUser = usuario.getTransacoes();
 
-        List<Transacao> receitas = todasTransacoes.stream()
+        List<TransacaoResponseDTO> receitas = todasTransacoesPorUser.stream()
                 .filter(transacao -> "RECEITA".equals(transacao.getTipo()))
+                .map(transacao -> new TransacaoResponseDTO(
+                    transacao.getTipo(),
+                    transacao.getCategoria(),
+                    transacao.getData(),
+                    transacao.getValor(),
+                    transacao.getId(),
+                    transacao.getUsuario().getId()
+                ))
                 .collect(Collectors.toList());
 
-        List<Transacao> despesas = todasTransacoes.stream()
+        List<TransacaoResponseDTO> despesas = todasTransacoesPorUser.stream()
                 .filter(transacao -> "DESPESA".equals(transacao.getTipo()))
+                .map(transacao -> new TransacaoResponseDTO(
+                    transacao.getTipo(), 
+                    transacao.getCategoria(), 
+                    transacao.getData(), 
+                    transacao.getValor(),
+                    transacao.getId(),
+                    transacao.getUsuario().getId()
+                ))
                 .collect(Collectors.toList());
 
-        BigDecimal total = todasTransacoes.stream()
+        BigDecimal total = todasTransacoesPorUser.stream()
         .map(transacao -> transacao.getValor())
         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return new Transacoes(receitas, despesas, total);
+        return new TransacoesResponseDTO(receitas, despesas, total);
     }
 
 }

@@ -5,9 +5,12 @@ import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity(name="tb_transacao")
 public class Transacao {
@@ -23,6 +26,9 @@ public class Transacao {
     private LocalDate data;
     @Column(nullable=false)
     private BigDecimal valor;
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="usuario_id", nullable=false)
+    private User usuario;
 
     public Integer getId() {
         return id;
@@ -62,6 +68,14 @@ public class Transacao {
 
     public void setValor(BigDecimal valor) {
         this.valor = valor;
+    }
+
+    public User getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(User usuario) {
+        this.usuario = usuario;
     }
 
 }
