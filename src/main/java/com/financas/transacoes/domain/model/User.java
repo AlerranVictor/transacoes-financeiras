@@ -17,11 +17,11 @@ public class User {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Integer id;
-    @Column(nullable=false)
+    @Column(nullable=false, length=50)
     private String nome;
-    @Column(nullable=false)
+    @Column(nullable=false, length=50)
     private String sobrenome;
-    @Column(nullable=false)
+    @Column(nullable=false, length=70, unique=true)
     private String email;
     @Column(nullable=false)
     private String senha;

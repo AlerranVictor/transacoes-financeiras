@@ -1,9 +1,8 @@
 package com.financas.transacoes.service.impl;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -11,105 +10,65 @@ import org.springframework.stereotype.Service;
 import com.financas.transacoes.domain.model.Transacao;
 import com.financas.transacoes.domain.model.User;
 import com.financas.transacoes.domain.repository.TransacaoRepository;
-import com.financas.transacoes.domain.repository.UserRepository;
+import com.financas.transacoes.dto.MesEAnoDTO;
 import com.financas.transacoes.dto.TransacaoRequestDTO;
 import com.financas.transacoes.dto.TransacaoResponseDTO;
-import com.financas.transacoes.dto.TransacoesResponseDTO;
 import com.financas.transacoes.service.TransacaoService;
 
 @Service
 public class TransacaoServiceImpl implements TransacaoService {
     private final TransacaoRepository transacaoRepository;
-    private final UserRepository userRepository;
 
-    public TransacaoServiceImpl(TransacaoRepository transacaoRepository, UserRepository userRepository) {
+    public TransacaoServiceImpl(TransacaoRepository transacaoRepository) {
         this.transacaoRepository = transacaoRepository;
-        this.userRepository = userRepository;
     }
-
 
     @Override
     public Transacao findById(Integer id) {
         return transacaoRepository.findById(id).orElseThrow(NoSuchElementException::new);
     }
-    @Override
-    public List<Transacao> findDespesas(){
-        return transacaoRepository.findByTipo("DESPESA")
-        .stream()
-        .collect(Collectors.toList());
-    }
-    @Override
-    public List<Transacao> findReceitas(){
-        return transacaoRepository.findByTipo("RECEITA")
-        .stream()
-        .collect(Collectors.toList());
-    }
 
     @Override
-    public Transacao create(TransacaoRequestDTO transacaoToCreate) {
-        User usuario = userRepository.findById(transacaoToCreate.getUsuarioId()).orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
-        transacaoToCreate.setTipo(transacaoToCreate.getTipo().toUpperCase());
+    public void create(TransacaoRequestDTO transacaoToCreate, User user) {
+        if(!transacaoToCreate.getTipo().equalsIgnoreCase("receita") | !transacaoToCreate.getTipo().equalsIgnoreCase("despesa")){
+            throw new RuntimeException("Tipo inválido");
+        }
         Transacao transacao = new Transacao();
         transacao.setTipo(transacaoToCreate.getTipo());
-        transacao.setCategoria(transacaoToCreate.getCategoria());
+        transacao.setDescricao(transacaoToCreate.getDescricao());
         transacao.setData(transacaoToCreate.getData());
         transacao.setValor(transacaoToCreate.getValor());
-        transacao.setUsuario(usuario);
-        return transacaoRepository.save(transacao);
+        transacao.setUsuario(user);
+        transacaoRepository.save(transacao);
     }
 
     @Override
-    public void delete(Integer id) {
-        transacaoRepository.deleteById(id);
+    public void delete(UUID uuid, Integer usuarioId) {
+        Transacao transacao = transacaoRepository.findByUuidAndUsuarioId(uuid, usuarioId).orElseThrow(NoSuchElementException::new);
+        transacaoRepository.delete(transacao);
     }
 
     @Override
-    public Optional<Transacao> update(Integer id, Transacao transacaoToUpdate) {
-        return transacaoRepository.findById(id).map(transacao -> {
+    public void update(UUID uuid, Integer usuarioId, TransacaoRequestDTO transacaoToUpdate) {
+        Transacao transacao = transacaoRepository.findByUuidAndUsuarioId(uuid, usuarioId).orElseThrow(NoSuchElementException::new);
             transacao.setTipo(transacaoToUpdate.getTipo().toUpperCase());
-            transacao.setCategoria(transacaoToUpdate.getCategoria());
+            transacao.setDescricao(transacaoToUpdate.getDescricao());
             transacao.setData(transacaoToUpdate.getData());
             transacao.setValor(transacaoToUpdate.getValor());
 
-            return transacaoRepository.save(transacao);
-        });
-        
+            transacaoRepository.save(transacao);
     }
 
     @Override
-    public TransacoesResponseDTO obterTransacoesSeparadas(Integer usuarioId) {
-        User usuario = userRepository.findById(usuarioId).orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
-        List<Transacao> todasTransacoesPorUser = usuario.getTransacoes();
-
-        List<TransacaoResponseDTO> receitas = todasTransacoesPorUser.stream()
-                .filter(transacao -> "RECEITA".equals(transacao.getTipo()))
-                .map(transacao -> new TransacaoResponseDTO(
-                    transacao.getTipo(),
-                    transacao.getCategoria(),
-                    transacao.getData(),
-                    transacao.getValor(),
-                    transacao.getId(),
-                    transacao.getUsuario().getId()
-                ))
-                .collect(Collectors.toList());
-
-        List<TransacaoResponseDTO> despesas = todasTransacoesPorUser.stream()
-                .filter(transacao -> "DESPESA".equals(transacao.getTipo()))
-                .map(transacao -> new TransacaoResponseDTO(
-                    transacao.getTipo(), 
-                    transacao.getCategoria(), 
-                    transacao.getData(), 
-                    transacao.getValor(),
-                    transacao.getId(),
-                    transacao.getUsuario().getId()
-                ))
-                .collect(Collectors.toList());
-
-        BigDecimal total = todasTransacoesPorUser.stream()
-        .map(transacao -> transacao.getValor())
-        .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        return new TransacoesResponseDTO(receitas, despesas, total);
+    public List<TransacaoResponseDTO> findByDate(MesEAnoDTO data, Integer usuarioId) {
+        List<Transacao> transacoesPorUser = transacaoRepository.findByYearMonth(usuarioId, data.getAno(), data.getMes());
+        return transacoesPorUser.stream()
+            .map(transacao -> new TransacaoResponseDTO(
+                transacao.getTipo(),
+                transacao.getDescricao(),
+                transacao.getData(),
+                transacao.getValor(),
+                transacao.getUuid()
+                )).collect(Collectors.toList());
     }
-
 }

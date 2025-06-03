@@ -2,23 +2,21 @@ package com.financas.transacoes.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 
 public class TransacaoResponseDTO {
-
     private String tipo;
-    private String categoria;
+    private String descricao;
     private LocalDate data;
     private BigDecimal valor;
-    private Integer id;
-    private Integer usuarioId;
+    private UUID uuid;
 
-    public TransacaoResponseDTO(String tipo, String categoria, LocalDate data, BigDecimal valor, Integer id, Integer usuarioId){
+    public TransacaoResponseDTO(String tipo, String descricao, LocalDate data, BigDecimal valor, UUID uuid){
         this.tipo = tipo;
-        this.categoria = categoria;
+        this.descricao = descricao;
         this.data = data;
         this.valor = valor;
-        this.id = id;
-        this.usuarioId = usuarioId;
+        this.uuid = uuid;
     }
 
     public String getTipo() {
@@ -29,12 +27,12 @@ public class TransacaoResponseDTO {
         this.tipo = tipo;
     }
 
-    public String getCategoria() {
-        return categoria;
+    public String getDescricao() {
+        return descricao;
     }
 
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
     }
 
     public LocalDate getData() {
@@ -53,19 +51,11 @@ public class TransacaoResponseDTO {
         this.valor = valor;
     }
 
-    public Integer getId() {
-        return id;
+    public UUID getUuid() {
+        return uuid;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getUsuarioId() {
-        return usuarioId;
-    }
-
-    public void setUsuarioId(Integer usuarioId) {
-        this.usuarioId = usuarioId;
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
     }
 }
