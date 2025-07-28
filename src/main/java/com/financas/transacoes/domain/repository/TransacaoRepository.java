@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.financas.transacoes.dto.TransacaoResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,4 +30,28 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Integer> {
             nativeQuery = true
     )
     List<Transacao> findByYearMonth(@Param("usuarioId") Integer usuarioId, @Param("year") int year, @Param("month") int month);
+
+    @Query(
+            value = """
+                    SELECT DISTINCT
+                        EXTRACT(YEAR FROM m.data) AS ano
+                    FROM tb_transacao m
+                    WHERE m.usuario_id = :usuarioId
+                    ORDER BY ano DESC
+                    """,
+            nativeQuery = true
+    )
+    List<Integer> findUsedYears(@Param("usuarioId") Integer usuarioId);
+
+    @Query(
+        value = """
+                SELECT DISTINCT
+                        EXTRACT(MONTH FROM m.data) AS mes
+                FROM tb_transacao m
+                WHERE m.usuario_id = :usuarioId
+                ORDER BY mes DESC
+                """,
+        nativeQuery = true
+    )
+    List<Integer> findUsedMonths(@Param("usuarioId") Integer usuarioId);
 }

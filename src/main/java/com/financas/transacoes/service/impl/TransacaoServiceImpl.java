@@ -10,7 +10,8 @@ import org.springframework.stereotype.Service;
 import com.financas.transacoes.domain.model.Transacao;
 import com.financas.transacoes.domain.model.User;
 import com.financas.transacoes.domain.repository.TransacaoRepository;
-import com.financas.transacoes.dto.MesEAnoDTO;
+import com.financas.transacoes.dto.AnoEMesDTO;
+import com.financas.transacoes.dto.AnoEMesRequestDTO;
 import com.financas.transacoes.dto.TransacaoRequestDTO;
 import com.financas.transacoes.dto.TransacaoResponseDTO;
 import com.financas.transacoes.service.TransacaoService;
@@ -30,16 +31,17 @@ public class TransacaoServiceImpl implements TransacaoService {
 
     @Override
     public void create(TransacaoRequestDTO transacaoToCreate, User user) {
-        if(!transacaoToCreate.getTipo().equalsIgnoreCase("receita") | !transacaoToCreate.getTipo().equalsIgnoreCase("despesa")){
+        if(transacaoToCreate.getTipo().equalsIgnoreCase("receita") | transacaoToCreate.getTipo().equalsIgnoreCase("despesa")){
+            Transacao transacao = new Transacao();
+            transacao.setTipo(transacaoToCreate.getTipo());
+            transacao.setDescricao(transacaoToCreate.getDescricao());
+            transacao.setData(transacaoToCreate.getData());
+            transacao.setValor(transacaoToCreate.getValor());
+            transacao.setUsuario(user);
+            transacaoRepository.save(transacao);
+        } else {
             throw new RuntimeException("Tipo inválido");
         }
-        Transacao transacao = new Transacao();
-        transacao.setTipo(transacaoToCreate.getTipo());
-        transacao.setDescricao(transacaoToCreate.getDescricao());
-        transacao.setData(transacaoToCreate.getData());
-        transacao.setValor(transacaoToCreate.getValor());
-        transacao.setUsuario(user);
-        transacaoRepository.save(transacao);
     }
 
     @Override
@@ -60,7 +62,7 @@ public class TransacaoServiceImpl implements TransacaoService {
     }
 
     @Override
-    public List<TransacaoResponseDTO> findByDate(MesEAnoDTO data, Integer usuarioId) {
+    public List<TransacaoResponseDTO> findByDate(AnoEMesRequestDTO data, Integer usuarioId) {
         List<Transacao> transacoesPorUser = transacaoRepository.findByYearMonth(usuarioId, data.getAno(), data.getMes());
         return transacoesPorUser.stream()
             .map(transacao -> new TransacaoResponseDTO(
@@ -70,5 +72,13 @@ public class TransacaoServiceImpl implements TransacaoService {
                 transacao.getValor(),
                 transacao.getUuid()
                 )).collect(Collectors.toList());
+    }
+
+@Override
+    public AnoEMesDTO findUsedDates(Integer usuarioId) {
+        return new AnoEMesDTO(
+            transacaoRepository.findUsedYears(usuarioId),
+            transacaoRepository.findUsedMonths(usuarioId)
+        );
     }
 }
