@@ -34,24 +34,13 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Integer> {
     @Query(
             value = """
                     SELECT DISTINCT
-                        EXTRACT(YEAR FROM m.data) AS ano
+                        EXTRACT(YEAR FROM m.data) AS ano,
+                        EXTRACT(MONTH FROM m.data) AS mes
                     FROM tb_transacao m
                     WHERE m.usuario_id = :usuarioId
-                    ORDER BY ano DESC
+                    ORDER BY ano DESC, mes DESC
                     """,
             nativeQuery = true
     )
-    List<Integer> findUsedYears(@Param("usuarioId") Integer usuarioId);
-
-    @Query(
-        value = """
-                SELECT DISTINCT
-                        EXTRACT(MONTH FROM m.data) AS mes
-                FROM tb_transacao m
-                WHERE m.usuario_id = :usuarioId
-                ORDER BY mes DESC
-                """,
-        nativeQuery = true
-    )
-    List<Integer> findUsedMonths(@Param("usuarioId") Integer usuarioId);
+    List<Object []> findUsedDates(@Param("usuarioId") Integer usuarioId);
 }

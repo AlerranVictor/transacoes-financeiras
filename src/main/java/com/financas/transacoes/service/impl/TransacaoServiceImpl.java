@@ -75,10 +75,7 @@ public class TransacaoServiceImpl implements TransacaoService {
     }
 
 @Override
-    public AnoEMesDTO findUsedDates(Integer usuarioId) {
-        return new AnoEMesDTO(
-            transacaoRepository.findUsedYears(usuarioId),
-            transacaoRepository.findUsedMonths(usuarioId)
-        );
+    public List<Object []> findUsedDates(Integer usuarioId) {
+        return transacaoRepository.findUsedDates(usuarioId);
     }
 }

@@ -13,7 +13,7 @@ import com.financas.transacoes.dto.TransacaoResponseDTO;
 public interface TransacaoService {
     Transacao findById(Integer id);
     List<TransacaoResponseDTO> findByDate(AnoEMesRequestDTO data, Integer usuarioId);
-    AnoEMesDTO findUsedDates(Integer usuarioId);
+    List<Object []> findUsedDates(Integer usuarioId);
     void create(TransacaoRequestDTO transacaoToCreate, User user);
     void delete(UUID uuid, Integer usuarioId);
     void update(UUID uuid, Integer usuarioId, TransacaoRequestDTO transacaoToUpdate);
