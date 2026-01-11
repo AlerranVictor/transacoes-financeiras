@@ -11,5 +11,5 @@ import com.financas.transacoes.domain.model.User;
 public interface UserRepository extends JpaRepository<User, String> {
 
     Optional<User> findByEmail (String email);
-    Optional<User> findById (Integer id);
+    Optional<User> findById (Long id);
 }

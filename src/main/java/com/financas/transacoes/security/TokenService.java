@@ -16,7 +16,7 @@ import com.financas.transacoes.domain.model.User;
 @Service
 public class TokenService {
 
-    @Value("${api.security.token.secret}")
+    @Value("${api.security.token}")
     private String secret;
 
     public String generateToken(User user) {

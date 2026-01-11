@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.financas.transacoes.domain.model.User;
-import com.financas.transacoes.dto.AuthResponseDTO;
 import com.financas.transacoes.dto.LoginRequestDTO;
 import com.financas.transacoes.dto.RegisterRequestDTO;
 import com.financas.transacoes.service.AuthService;

@@ -1,5 +1,6 @@
 package com.financas.transacoes.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,6 +35,12 @@ public class TransacaoController {
     public ResponseEntity<List<TransacaoResponseDTO>> findByDate(@RequestBody AnoEMesRequestDTO data, Authentication authentication){
         User user = (User) authentication.getPrincipal();
         return ResponseEntity.ok(transacaoService.findByDate(data, user.getId()));
+    }
+
+    @GetMapping("/saldo")
+    public ResponseEntity<BigDecimal> getSaldo(Authentication authentication){
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(user.getSaldo());
     }
 
     @GetMapping("/datas")
