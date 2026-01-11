@@ -17,7 +17,7 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Integer> {
     @Override
     boolean existsById(Integer id);
 
-    Optional<Transacao> findByUuidAndUsuarioId(UUID uuid, Integer usuarioId);
+    Optional<Transacao> findByUuidAndUsuarioId(UUID uuid, Long usuarioId);
 
     @Query(
             value = """
@@ -29,7 +29,7 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Integer> {
                     """,
             nativeQuery = true
     )
-    List<Transacao> findByYearMonth(@Param("usuarioId") Integer usuarioId, @Param("year") int year, @Param("month") int month);
+    List<Transacao> findByYearMonth(@Param("usuarioId") Long usuarioId, @Param("year") int year, @Param("month") int month);
 
     @Query(
             value = """
@@ -42,5 +42,5 @@ public interface TransacaoRepository extends JpaRepository<Transacao, Integer> {
                     """,
             nativeQuery = true
     )
-    List<Object []> findUsedDates(@Param("usuarioId") Integer usuarioId);
+    List<Object []> findUsedDates(@Param("usuarioId") Long usuarioId);
 }

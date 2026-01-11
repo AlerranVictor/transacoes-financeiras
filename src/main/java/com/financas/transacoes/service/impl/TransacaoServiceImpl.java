@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.financas.transacoes.domain.model.Transacao;
 import com.financas.transacoes.domain.model.User;
 import com.financas.transacoes.domain.repository.TransacaoRepository;
-import com.financas.transacoes.dto.AnoEMesDTO;
+import com.financas.transacoes.domain.repository.UserRepository;
 import com.financas.transacoes.dto.AnoEMesRequestDTO;
 import com.financas.transacoes.dto.TransacaoRequestDTO;
 import com.financas.transacoes.dto.TransacaoResponseDTO;
@@ -19,9 +19,11 @@ import com.financas.transacoes.service.TransacaoService;
 @Service
 public class TransacaoServiceImpl implements TransacaoService {
     private final TransacaoRepository transacaoRepository;
+    private final UserRepository userRepository;
 
-    public TransacaoServiceImpl(TransacaoRepository transacaoRepository) {
+    public TransacaoServiceImpl(TransacaoRepository transacaoRepository, UserRepository userRepository) {
         this.transacaoRepository = transacaoRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -36,8 +38,20 @@ public class TransacaoServiceImpl implements TransacaoService {
             transacao.setTipo(transacaoToCreate.getTipo());
             transacao.setDescricao(transacaoToCreate.getDescricao());
             transacao.setData(transacaoToCreate.getData());
-            transacao.setValor(transacaoToCreate.getValor());
+            if(transacaoToCreate.getTipo().equalsIgnoreCase("despesa") && transacaoToCreate.getValor().compareTo(java.math.BigDecimal.ZERO) > 0){
+                transacao.setValor(transacaoToCreate.getValor().negate());
+                //user.setSaldo(user.getSaldo().add(transacaoToCreate.getValor()));
+            } else if(transacaoToCreate.getTipo().equalsIgnoreCase("receita") && transacaoToCreate.getValor().compareTo(java.math.BigDecimal.ZERO) < 0){
+                transacao.setValor(transacaoToCreate.getValor().abs());
+                //user.setSaldo(user.getSaldo().add(transacaoToCreate.getValor()));
+            } else {
+                transacao.setValor(transacaoToCreate.getValor());
+            }
+                user.setSaldo(user.getSaldo().add(transacaoToCreate.getValor()));
+
             transacao.setUsuario(user);
+            
+            userRepository.save(user);
             transacaoRepository.save(transacao);
         } else {
             throw new RuntimeException("Tipo inválido");
@@ -45,13 +59,13 @@ public class TransacaoServiceImpl implements TransacaoService {
     }
 
     @Override
-    public void delete(UUID uuid, Integer usuarioId) {
+    public void delete(UUID uuid, Long usuarioId) {
         Transacao transacao = transacaoRepository.findByUuidAndUsuarioId(uuid, usuarioId).orElseThrow(NoSuchElementException::new);
         transacaoRepository.delete(transacao);
     }
 
     @Override
-    public void update(UUID uuid, Integer usuarioId, TransacaoRequestDTO transacaoToUpdate) {
+    public void update(UUID uuid, Long usuarioId, TransacaoRequestDTO transacaoToUpdate) {
         Transacao transacao = transacaoRepository.findByUuidAndUsuarioId(uuid, usuarioId).orElseThrow(NoSuchElementException::new);
             transacao.setTipo(transacaoToUpdate.getTipo().toUpperCase());
             transacao.setDescricao(transacaoToUpdate.getDescricao());
@@ -62,7 +76,7 @@ public class TransacaoServiceImpl implements TransacaoService {
     }
 
     @Override
-    public List<TransacaoResponseDTO> findByDate(AnoEMesRequestDTO data, Integer usuarioId) {
+    public List<TransacaoResponseDTO> findByDate(AnoEMesRequestDTO data, Long usuarioId) {
         List<Transacao> transacoesPorUser = transacaoRepository.findByYearMonth(usuarioId, data.getAno(), data.getMes());
         return transacoesPorUser.stream()
             .map(transacao -> new TransacaoResponseDTO(
@@ -75,7 +89,7 @@ public class TransacaoServiceImpl implements TransacaoService {
     }
 
 @Override
-    public List<Object []> findUsedDates(Integer usuarioId) {
+    public List<Object []> findUsedDates(Long usuarioId) {
         return transacaoRepository.findUsedDates(usuarioId);
     }
 }

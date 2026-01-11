@@ -18,7 +18,7 @@ public class Transacao {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     @Column(nullable=false, unique=true, updatable=false)
     private UUID uuid = UUID.randomUUID();
     @Column(nullable=false, length=8)
@@ -33,10 +33,10 @@ public class Transacao {
     @JoinColumn(name="usuario_id", nullable=false)
     private User usuario;
     
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public String getTipo() {
